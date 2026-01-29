@@ -1,0 +1,21 @@
+# Train/val/test sets 
+path: /path/to/project/dataset  
+
+
+train
+  - /path/to/project/dataset/advdatasets/advpatch_strict/images/train
+
+
+
+val
+  - /path/to/project/dataset/advdatasets/advpatch_strict/images/val
+
+
+
+test
+  - /path/to/project/dataset/GL1/labels/val
+  - /path/to/project/dataset/GL2/labels/val
+  - /path/to/project/dataset/GL3/labels/val
+
+nc: 1  
+names: ['patch']  
