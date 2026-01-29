@@ -39,14 +39,6 @@ pip install pytorch-wavelets
 
 ## Usage
 
-### Evaluation
-
-Evaluate the pre-trained defense model on adversarial datasets:
-
-```bash
-python evaluate.py --model checkpoints/defense_model.pt
-```
-
 ### Training
 
 The framework operates in two synergistic stages:
@@ -63,13 +55,13 @@ The framework operates in two synergistic stages:
     python train.py --stage 2 --data data/advpatch_dataset.yaml --epochs 80
     ```
 
-### Full Evaluation
+### Evaluation
 
-Evaluate defense performance on multiple datasets:
+Evaluate defense performance on adversarial datasets:
 
 ```bash
 python val.py \
     --model checkpoints/defense_model.pt \
-    --datasets advPatch DM-NAP GNAP LaVAN T-SEA diffpatch adaptive_advpatch advtexture \
+    --datasets adversarial datasets \
     --output-dir evaluation_results
 ```
