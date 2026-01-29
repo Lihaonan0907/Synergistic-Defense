@@ -1,0 +1,130 @@
+# Adversarial Patch Dataset Configuration
+# Dataset path (adjust to your actual path)
+path: /path/to/project/dataset/adversarial_datasets/advpatch  # dataset root dir
+train: images/train  # train images (relative to 'path')
+val: images/val  # val images (relative to 'path')
+
+# Classes
+nc: 2  # number of classes (person + patch)
+names: ['person', 'patch']  # class names for combined training
+
+#  ()
+patch_labels_train: patch_labels/train
+patch_labels_val: patch_labels/val
+
+#  (personpatch)
+total_labels_train: total_labels/train
+total_labels_val: total_labels/val
+
+
+dataset_stats
+  total_images: 7468  # 4903 train + 2565 val ()
+  train_images: 4903
+  val_images: 2565
+  train_patches: 19  
+  val_patches: 13    
+  patch_overlap: 0   # （）
+  patch_labels_available: true
+  total_labels_available: true
+  data_leakage_fixed: true  
+
+# Single class configurations for different stages
+stage1_nc: 1  # stage1: only patch detection
+stage1_names: ['patch']  # patch detection class
+
+stage23_nc: 2  # stage2&3: person + patch detection
+stage23_names: ['person', 'patch']  # combined classes
+
+# Model configuration
+imgsz: 640  # train, val image size (pixels)
+batch_size: 16  # batch size
+workers: 4  # number of dataloader workers (4)
+
+# Training parameters
+epochs: 100
+lr0: 0.01
+weight_decay: 0.0005
+momentum: 0.937
+
+# Three-stage training epochs
+stage1_epochs: 50  # patch detection
+stage2_epochs: 30  # repair module
+stage3_epochs: 50  # robust detector
+
+# Stage-specific configurations
+stage1
+  labels_path: patch_labels  # only patch labels for stage1
+  nc: 1  # only patch class
+  names: ['patch']
+  focus: 'patch_detection'  # focus on detecting adversarial patches
+  
+stage2
+  labels_path: total_labels  # combined person+patch labels
+  nc: 2  # person + patch classes
+  names: ['person', 'patch']
+  focus: 'repair_training'  # focus on image repair and person detection
+  
+stage3
+  labels_path: labels  # standard person labels
+  nc: 1  # only person class for final robustness
+  names: ['person']
+  focus: 'robustness_training'  # focus on robust person detection
+
+# Augmentations
+mosaic: 1.0  # mosaic augmentation probability
+mixup: 0.0  # mixup augmentation probability
+copy_paste: 0.0  # copy paste augmentation probability
+degrees: 0.0  # image rotation (+/- deg)
+translate: 0.1  # image translation (+/- fraction)
+scale: 0.5  # image scale (+/- gain)
+shear: 0.0  # image shear (+/- deg)
+perspective: 0.0  # image perspective (+/- fraction)
+flipud: 0.0  # image flip up-down (probability)
+fliplr: 0.5  # image flip left-right (probability)
+hsv_h: 0.015  # image HSV-Hue augmentation (fraction)
+hsv_s: 0.7  # image HSV-Saturation augmentation (fraction)
+hsv_v: 0.4  # image HSV-Value augmentation (fraction)
+
+# Adversarial patch specific settings
+patch_detection
+  min_patch_size: 10  # minimum patch size in pixels
+  max_patch_size: 200  # maximum patch size in pixels  
+  patch_conf_thresh: 0.3  # confidence threshold for patch detection
+  patch_nms_thresh: 0.5  # NMS threshold for patch detection
+
+# Frequency domain settings (for wavelet-based attention)
+frequency_attention
+  wavelet: 'db4'  # wavelet type
+  levels: 3  # decomposition levels
+  reduction_ratio: 16  # attention reduction ratio
+
+# Repair module settings
+repair_module
+  base_repair_strength: 0.5  # initial repair strength
+  adaptive_repair: true  # enable adaptive repair strength
+  repair_quality_thresh: 0.7  # repair quality threshold
+
+# Advanced settings
+ema: true  # use EMA for model update
+single_cls: false  # multi-class dataset for combined training
+rect: false  # rectangular training
+resume: false  # resume training from last checkpoint
+nosave: false  # only save final checkpoint
+noval: false  # only validate final epoch
+noautoanchor: false  # disable autoanchor check
+evolve: false  # evolve hyperparameters
+bucket: ''  # gsutil bucket
+cache_images: false  # cache images for faster training
+name: 'advpatch_exp'  # experiment name
+device: ''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+multi_scale: false  # vary img-size +/- 50%%
+optimizer: 'SGD'  # optimizer [SGD, Adam, AdamW]
+sync_bn: false  # use SyncBatchNorm, only available in DDP mode
+local_rank: -1  # DDP parameter, do not modify
+loggers: ['tensorboard']  # loggers ['tensorboard', 'wandb']
+
+# Validation settings
+validation
+  patch_map_thresh: 0.5  # mAP threshold for patch detection
+  person_map_thresh: 0.7  # mAP threshold for person detection
+  robustness_thresh: 0.8  # robustness score threshold

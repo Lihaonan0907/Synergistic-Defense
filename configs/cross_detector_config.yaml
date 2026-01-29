@@ -1,0 +1,92 @@
+
+
+
+detectors
+  yolov5
+    enabled: true
+    cfg: 'models/yolov5s.yaml'
+    weights: 'yolov5s.pt'
+    backbone: null
+  
+  yolov7
+    enabled: false
+    cfg: 'yolov7/cfg/training/yolov7.yaml'
+    weights: 'yolov7.pt'
+    backbone: null
+  
+  detr
+    enabled: true
+    cfg: null
+    weights: 'detr-r50-e632da11.pth'
+    backbone: 'resnet50'
+  
+  faster_rcnn
+    enabled: true
+    cfg: null
+    weights: 'fasterrcnn_resnet50_fpn_coco.pth'
+    backbone: 'resnet50'
+  
+  ssd
+    enabled: true
+    cfg: null
+    weights: 'ssd300_vgg16_coco.pth'
+    backbone: 'vgg16'
+
+
+training
+  epochs: 100
+  batch_size: 16
+  img_size: 640
+  
+  # Stage1
+  stage1
+    epochs: 50
+    lr: 0.01
+    weight_decay: 0.0005
+    conf_thres: 0.05
+  
+  # Stage2: （）
+  stage2
+    epochs: 50
+    lr: 0.001
+    weight_decay: 0.0005
+    repair_strength: 0.5
+    
+    
+    loss_weights
+      detection: 1.0      
+      repair: 1.0         
+      dependency: 0.5     
+      effectiveness: 0.3  
+
+
+data
+  train: 'dataset/adversarial_datasets/DM-NAP/train'
+  val: 'dataset/adversarial_datasets/DM-NAP/val'
+  clean_train: 'dataset/coco/train2017'
+  clean_val: 'dataset/coco/val2017'
+  nc: 80  # COCO
+  names: ['person']  # person
+
+
+evaluation
+  conf_thres: 0.001  # COCO
+  iou_thres: 0.6
+  metrics
+    - 'mAP@0.5'
+    - 'mAP@0.5:0.95'
+    - 'Precision'
+    - 'Recall'
+
+
+output
+  project: 'runs/cross_detector'
+  name: 'exp'
+  save_period: 10  # Nepoch
+  save_best: true
+  
+  
+  visualize
+    enabled: true
+    num_samples: 10  
+    save_repaired: true  
