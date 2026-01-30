@@ -70,6 +70,7 @@ python val.py \
 
 Supplementary demonstration videos are available, providing visual comparisons of adversarial patch attacks and the repair effects of our defense framework. These videos illustrate the attack’s impact on object detectors and the subsequent recovery after applying our frequency-guided detection and repair pipeline.
 
--   **Video Folder (Google Drive)**: https://drive.google.com/drive/folders/1lpCOSaDeDZgQkG4PL94qWd_tSS_Zd3Ug?usp=drive_link
+-   **Video Folder**: 
+  https://drive.google.com/drive/folders/1lpCOSaDeDZgQkG4PL94qWd_tSS_Zd3Ug?usp=drive_link
 
 *Note*: The videos are provided as supplementary material to the paper **“Synergistic Frequency-Domain Detection and Repair with Adversarial Training for Adversarial Patch Defense”**.
