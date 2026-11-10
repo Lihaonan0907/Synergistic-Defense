@@ -6,6 +6,10 @@ PyTorch implementation of frequency-domain adversarial patch localization and ma
 
 **Release contents:** source code and configurations. Model weights and datasets are not included; inference and evaluation require compatible weights supplied separately.
 
+## Demonstration videos
+
+Supplementary videos illustrate adversarial patch attacks, frequency-guided patch localization and repair, and the corresponding recovery of person-detection performance. [Watch the demonstration videos](https://drive.google.com/drive/folders/1lpCOSaDeDZgQkG4PL94qWd_tSS_Zd3Ug?usp=drive_link).
+
 ## Installation
 
 The documented environment uses Python 3.10, PyTorch 2.1.0, and torchvision 0.16.0. From the repository root:
