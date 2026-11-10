@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "stage1_weights": "weights/stage1_best.pt",
+  "stage2_weights": "weights/stage2_best.pt",
+  "size": 416,
+  "mask_threshold": 0.25,
+  "detector_score_threshold": 0.001,
+  "detector_nms_threshold": 0.6,
+  "max_detections": 100
+}

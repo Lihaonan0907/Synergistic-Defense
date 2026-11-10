@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools==72.1.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "synergistic-frequency-domain-detection-and-repair-with-adversarial-training-for-adversarial-patch-defense"
+version = "0.1.0"
+description = "Frequency-domain patch localization, dual-domain repair, and person detection"
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+dynamic = ["dependencies"]
+
+[project.scripts]
+defense-demo = "inference.cli:main"
+defense-evaluate = "evaluate:main"
+
+[tool.setuptools]
+packages = ["models", "losses", "datasets", "training", "inference", "evaluation", "attacks", "utils"]
+py-modules = ["demo", "train_stage1", "train_stage2", "evaluate"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}

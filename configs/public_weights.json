@@ -1,0 +1,8 @@
+[
+  {
+    "file": "checkpoints/public/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth",
+    "official_url": "https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth",
+    "sha256": "258fb6c638b15964ddcdd1ae0748c5eef1be9e732750120cc857feed3faac384",
+    "use": "standard publicly pretrained person detector; not defense weights"
+  }
+]

@@ -1,76 +1,76 @@
-# Defense Against Adversarial Patches
+# Synergistic Frequency-Domain Detection and Repair with Adversarial Training for Adversarial Patch Defense
 
-This repository contains the official implementation for the paper **“Synergistic Frequency-Domain Detection and Repair with Adversarial Training for Adversarial Patch Defense”**. It is a unified two-stage defense framework designed to protect object detectors from localized, physically realizable adversarial patch attacks.
+Yang Li, Haonan Li, Ziyan He, Shihao Wu, Xin Zhou, and Zhunga Liu
 
-## Pre-trained Model
+PyTorch implementation of frequency-domain adversarial patch localization and mask-guided image repair for person detection. The method combines spectral patch localization with spatial and frequency-domain repair, adversarial training, and downstream detection feedback.
 
-A pre-trained defense model is provided for evaluation and reproduction.
-
-- **Model file**: `defense_model.pt`
-- **Download link**:  
-  https://drive.google.com/file/d/1nkCLr6su9VwigYCEALbcbmfZfUsrLqLA/view?usp=drive_link
-
-After downloading, place the model under:
-```text
-checkpoints/defense_model.pt
-```
+**Release contents:** source code and configurations. Model weights and datasets are not included; inference and evaluation require compatible weights supplied separately.
 
 ## Installation
 
-```bash
-pip install -r requirements.txt
-pip install pytorch-wavelets
-```
-
-## Project Structure
-
-```
-├── train.py                         # Main training script
-├── evaluate.py                      # Evaluation on adversarial datasets
-├── val.py                           # Standard validation
-├── create_adversarial_datasets.py   # Script to generate attacked datasets
-├── checkpoints/                     # Pre-trained model weights
-│   └── defense_model.pt
-├── models/                          # Model definitions (detector, repair module)
-├── utils/                           # Utility functions and helpers
-├── data/                            # Dataset configuration files
-└── configs/                         # Training and experiment configurations
-```
-
-## Usage
-
-### Training
-
-The framework operates in two synergistic stages:
-
-1.  **Stage 1: Multiscale Spectral Patch Detection**  
-    A wavelet-based detector localizes adversarial patches using adaptive frequency-domain analysis.
-    ```bash
-    python train.py --stage 1 --data data/patch.yaml --cfg models/yolov5s.yaml --epochs 100
-    ```
-
-2.  **Stage 2: Joint Repair and Robust Detection**  
-    A frequency-guided module repairs the detected regions while a detector is jointly trained for robust perception.
-    ```bash
-    python train.py --stage 2 --data data/advpatch_dataset.yaml --epochs 80
-    ```
-
-### Evaluation
-
-Evaluate defense performance on adversarial datasets:
+The documented environment uses Python 3.10, PyTorch 2.1.0, and torchvision 0.16.0. From the repository root:
 
 ```bash
-python val.py \
-    --model checkpoints/defense_model.pt \
-    --datasets adversarial datasets \
-    --output-dir evaluation_results
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pip install --no-deps --no-build-isolation -e .
 ```
 
-## Supplementary Material: Demonstration Videos
+See [the dependency lock](docs/requirements-lock.cpu.txt) for the previously verified CPU environment and [historical CUDA dependencies](docs/historical-training-direct-dependencies.cu118.txt) for the training environment.
 
-Supplementary demonstration videos are available, providing visual comparisons of adversarial patch attacks and the repair effects of our defense framework. These videos illustrate the attack’s impact on object detectors and the subsequent recovery after applying our frequency-guided detection and repair pipeline.
+## Data and weights
 
--   **Video Folder**: 
-  [https://drive.google.com/drive/folders/1lpCOSaDeDZgQkG4PL94qWd_tSS_Zd3Ug?usp=drive_link](https://drive.google.com/drive/folders/1lpCOSaDeDZgQkG4PL94qWd_tSS_Zd3Ug?usp=drive_link)
+Obtain images and annotations under their applicable terms. Prepare the required JSONL manifests using [the data format](data/MANIFEST_FORMAT.md) and `scripts/prepare_dataset.py`. Stage 1 requires patch annotations; Stage 2 requires paired clean images and person annotations. Keep source identities disjoint across training, validation, and test splits.
 
-*Note*: The videos are provided as supplementary material to the paper **“Synergistic Frequency-Domain Detection and Repair with Adversarial Training for Adversarial Patch Defense”**.
+The default inference configuration expects `weights/stage1_best.pt` and `weights/stage2_best.pt`, with their corresponding SHA256 sidecars. **These model files are not distributed here and no public download is currently available.** Compatible weights and matching sidecars are required. The inference commands below require compatible weights and a user-provided image.
+
+## Inference
+
+```bash
+python demo.py --input examples/input.jpg --output outputs/single --device cpu
+
+python inference.py --input examples/inputs \
+  --stage1-weights weights/stage1_best.pt \
+  --stage2-weights weights/stage2_best.pt \
+  --config configs/inference.json --output outputs/directory --device cpu
+```
+
+Outputs include predicted patch masks, repaired images, person detections, and numerical predictions. Use `--device cuda:0` with a compatible CUDA installation.
+
+## Training and evaluation
+
+After preparing the stage-specific manifests described in [the data format](data/MANIFEST_FORMAT.md), run:
+
+```bash
+python train_stage1.py --config configs/stage1.json --gpus 1
+python scripts/fetch_public_weights.py
+python train_stage2.py --config configs/stage2.json
+
+python evaluate.py --task patch --manifest data/manifests/stage1_test.jsonl --output outputs/patch_test --device cpu
+python evaluate.py --manifest data/manifests/stage2_test.jsonl --output outputs/person_test --device cpu
+```
+
+Stage 2 requires a trained Stage-1 checkpoint and the person-detector initializer specified in `configs/public_weights.json`; the initializer is acquired separately and subject to its own terms. Configuration files specify the training parameters and required assets.
+
+## Code structure
+
+- `models/`, `losses/`: frequency-domain localization, dual-domain repair, detector, and objectives.
+- `training/`, `inference/`, `evaluation/`, `attacks/`: training, inference, metrics, and attack evaluation.
+- `datasets/`, `scripts/`, `configs/`, `tests/`: data preparation, utilities, settings, and lightweight checks.
+
+Method details are described in the source code.
+
+## Citation
+
+```bibtex
+@misc{li_synergistic_frequency_defense,
+  title  = {Synergistic Frequency-Domain Detection and Repair with Adversarial Training for Adversarial Patch Defense},
+  author = {Li, Yang and Li, Haonan and He, Ziyan and Wu, Shihao and Zhou, Xin and Liu, Zhunga},
+  note   = {Publication details to be added}
+}
+```
+
+## License
+
+The project source code is released under the [MIT License](LICENSE). Model weights, datasets, and third-party assets are subject to their own terms; see [third-party notices](docs/THIRD_PARTY_NOTICES.md).

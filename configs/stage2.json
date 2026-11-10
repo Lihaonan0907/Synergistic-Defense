@@ -1,0 +1,69 @@
+{
+  "category": "defense_training",
+  "seed": 2026,
+  "device": "cuda:0",
+  "size": 416,
+  "stage": "stage2",
+  "epochs": 80,
+  "effective_batch": 16,
+  "microbatch": 2,
+  "workers": 4,
+  "validation_batch": 2,
+  "amp": true,
+  "clip_norm": 1.0,
+  "train_manifest": "data/manifests/stage2_train.jsonl",
+  "validation_manifest": "data/manifests/stage2_validation.jsonl",
+  "stage1_checkpoint": "checkpoints/stage1_from_scratch/best.pth",
+  "localizer": {
+    "size": 416,
+    "wave": "db6",
+    "levels": 4,
+    "width": 16,
+    "beta": 1.0,
+    "mode": "paper_literal",
+    "tiny": false,
+    "roi_backend": "torch"
+  },
+  "person": {
+    "kind": "fasterrcnn",
+    "size": 416,
+    "initialization": "public_coco",
+    "public_weights": "checkpoints/public/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth"
+  },
+  "repair": {
+    "wave": "db6",
+    "levels": 4,
+    "width": 32,
+    "strength": 0.7,
+    "branches": "both"
+  },
+  "repair_lr": 0.0001,
+  "person_lr": 0.0005,
+  "progressive": true,
+  "phase_epochs": [
+    20,
+    20,
+    40
+  ],
+  "loss": {
+    "lambda_low": 1.0,
+    "lambda_high": 1.0,
+    "lambda_person": 1.0,
+    "lambda_repair": 1.0,
+    "lambda_dep": 0.1,
+    "gamma": 0.2,
+    "detach_unrepaired": false,
+    "reduction": "batch_mean"
+  },
+  "implementation_assumptions": [
+    "A06",
+    "A07",
+    "A08 public pretrained person detector",
+    "A09",
+    "A11",
+    "Literal higher-order AFAL Stage1, torchvision equivalent torch ROIAlign; no shared-enhancement extension"
+  ],
+  "paper_comparable": false,
+  "run_id": "stage2_from_scratch",
+  "gt_protocol": "Complete original INRIA person GT by exact clean-pixel correspondence; same candidate images/splits"
+}
