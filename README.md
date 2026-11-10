@@ -2,68 +2,103 @@
 
 Yang Li, Haonan Li, Ziyan He, Shihao Wu, Xin Zhou, and Zhunga Liu
 
-PyTorch implementation of frequency-domain adversarial patch localization and mask-guided image repair for person detection. The method combines spectral patch localization with spatial and frequency-domain repair, adversarial training, and downstream detection feedback.
+PyTorch implementation of frequency-domain adversarial patch localization,
+mask-guided repair, and person detection.
 
-**Release contents:** source code and configurations. Model weights and datasets are not included; inference and evaluation require compatible weights supplied separately.
+## Overview
 
-## Demonstration videos
+The two-stage framework follows **Patch Localization → Mask Generation →
+Dual-Domain Repair → Person Detection**. Stage 1 localizes adversarial patches
+using wavelet features and adaptive frequency-domain learning. Stage 2 combines
+spatial and frequency-domain repair with a downstream person detector.
 
-Supplementary videos illustrate adversarial patch attacks, frequency-guided patch localization and repair, and the corresponding recovery of person-detection performance. [Watch the demonstration videos](https://drive.google.com/drive/folders/1lpCOSaDeDZgQkG4PL94qWd_tSS_Zd3Ug?usp=drive_link).
+Some implementation details not fixed by the paper use explicit assumptions;
+see [implementation notes](docs/IMPLEMENTATION.md).
 
 ## Installation
 
-The documented environment uses Python 3.10, PyTorch 2.1.0, and torchvision 0.16.0. From the repository root:
+Python 3.10 or 3.11 is required. Create an environment and install dependencies:
 
 ```bash
+git clone https://github.com/Lihaonan0907/Synergistic-Defense.git
+cd Synergistic-Defense
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python -m pip install --no-deps --no-build-isolation -e .
+python -m pip install --no-build-isolation --no-deps -e .
 ```
 
-See [the dependency lock](docs/requirements-lock.cpu.txt) for the previously verified CPU environment and [historical CUDA dependencies](docs/historical-training-direct-dependencies.cu118.txt) for the training environment.
+The pinned dependencies include PyTorch 2.1.0 and torchvision 0.16.0. Install
+compatible PyTorch builds for your platform and CUDA setup when needed.
 
-## Data and weights
+## Code Structure
 
-Obtain images and annotations under their applicable terms. Prepare the required JSONL manifests using [the data format](data/MANIFEST_FORMAT.md) and `scripts/prepare_dataset.py`. Stage 1 requires patch annotations; Stage 2 requires paired clean images and person annotations. Keep source identities disjoint across training, validation, and test splits.
+```text
+models/       Patch localizer, wavelets, repair, detector, and full defense
+losses/       Frequency alignment, reconstruction, and dependency losses
+training/     Training objectives, optimization, and checkpoint handling
+inference/    Image inference API and command-line interface
+evaluation/   Evaluation utilities and metrics
+attacks/      Adversarial patch and robustness evaluation utilities
+datasets/     Dataset and annotation readers
+configs/      Training and inference configurations
+scripts/      Data preparation and supporting utilities
+tests/        Lightweight tests
+```
 
-The default inference configuration expects `weights/stage1_best.pt` and `weights/stage2_best.pt`, with their corresponding SHA256 sidecars. **These model files are not distributed here and no public download is currently available.** Compatible weights and matching sidecars are required. The inference commands below require compatible weights and a user-provided image.
+## Usage
 
-## Inference
+**Model weights and datasets are not included.** Inference requires compatible
+Stage-1 and Stage-2 exported bundles with SHA-256 JSON sidecars. The Stage-1
+weights must match the frozen localizer inside the Stage-2 bundle. The supplied
+sidecars in `weights/` contain the expected hashes for the corresponding
+bundles; see [weight requirements](weights/README.md). No download is provided.
+
+### Inference
+
+Place compatible bundles in `weights/` and supply your own image:
 
 ```bash
-python demo.py --input examples/input.jpg --output outputs/single --device cpu
-
-python inference.py --input examples/inputs \
-  --stage1-weights weights/stage1_best.pt \
-  --stage2-weights weights/stage2_best.pt \
-  --config configs/inference.json --output outputs/directory --device cpu
+python demo.py --input examples/input.jpg --output outputs/demo --device cpu
 ```
 
-Outputs include predicted patch masks, repaired images, person detections, and numerical predictions. Use `--device cuda:0` with a compatible CUDA installation.
+For a directory of images, pass its path with `--input` to `inference.py`.
+Use `--stage1-weights` and `--stage2-weights` to select other bundle paths.
 
-## Training and evaluation
+```python
+from datasets.manifest import read_rgb
+from inference import DefensePredictor
 
-After preparing the stage-specific manifests described in [the data format](data/MANIFEST_FORMAT.md), run:
+predict = DefensePredictor(
+    stage1_weights="weights/stage1_best.pt",
+    stage2_weights="weights/stage2_best.pt",
+    config="configs/inference.json",
+    device="cpu",
+)
+image, original_size = read_rgb("examples/input.jpg", predict.size)
+outputs = predict(image)  # patch boxes, mask, repaired image, person boxes
+```
+
+### Data, training, and evaluation
+
+Prepare user-supplied manifests as described in [data/MANIFEST_FORMAT.md](data/MANIFEST_FORMAT.md).
+The training configurations specify the expected paths and a separately obtained
+person-detector initializer. After providing the required inputs:
 
 ```bash
 python train_stage1.py --config configs/stage1.json --gpus 1
 python scripts/fetch_public_weights.py
 python train_stage2.py --config configs/stage2.json
-
-python evaluate.py --task patch --manifest data/manifests/stage1_test.jsonl --output outputs/patch_test --device cpu
-python evaluate.py --manifest data/manifests/stage2_test.jsonl --output outputs/person_test --device cpu
+python evaluate.py --manifest data/manifests/stage2_test.jsonl --output outputs/evaluation
 ```
 
-Stage 2 requires a trained Stage-1 checkpoint and the person-detector initializer specified in `configs/public_weights.json`; the initializer is acquired separately and subject to its own terms. Configuration files specify the training parameters and required assets.
+Training saves native checkpoints; inference expects exported bundles, and this
+repository does not currently provide a native-checkpoint export utility. See
+[weight requirements](weights/README.md) before running inference or evaluation.
 
-## Code structure
+## Demonstration Videos
 
-- `models/`, `losses/`: frequency-domain localization, dual-domain repair, detector, and objectives.
-- `training/`, `inference/`, `evaluation/`, `attacks/`: training, inference, metrics, and attack evaluation.
-- `datasets/`, `scripts/`, `configs/`, `tests/`: data preparation, utilities, settings, and lightweight checks.
-
-Method details are described in the source code.
+[Watch the supplementary demonstration videos](https://drive.google.com/drive/folders/1lpCOSaDeDZgQkG4PL94qWd_tSS_Zd3Ug?usp=drive_link).
 
 ## Citation
 
@@ -77,4 +112,5 @@ Method details are described in the source code.
 
 ## License
 
-The project source code is released under the [MIT License](LICENSE). Model weights, datasets, and third-party assets are subject to their own terms; see [third-party notices](docs/THIRD_PARTY_NOTICES.md).
+The project source is released under the [MIT License](LICENSE). Model weights,
+datasets, and third-party assets have separate terms; see [third-party notices](docs/THIRD_PARTY_NOTICES.md).

@@ -1,5 +1,4 @@
 # Verified CPU freeze: docs/requirements-lock.cpu.txt.
-# Historical CUDA direct dependencies: docs/historical-training-direct-dependencies.cu118.txt.
 torch==2.1.0
 torchvision==0.16.0
 pytorch-wavelets==1.3.0
