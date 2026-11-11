@@ -14,6 +14,8 @@ spatial and frequency-domain repair with a downstream person detector.
 
 Some implementation details not fixed by the paper use explicit assumptions;
 see [implementation notes](docs/IMPLEMENTATION.md).
+The current configurations use db2 for localization and db6 for repair; they
+have not been validated by retraining.
 
 ## Installation
 
@@ -51,8 +53,8 @@ tests/        Lightweight tests
 **Model weights and datasets are not included.** Inference requires compatible
 Stage-1 and Stage-2 exported bundles with SHA-256 JSON sidecars. The Stage-1
 weights must match the frozen localizer inside the Stage-2 bundle. The supplied
-sidecars in `weights/` contain the expected hashes for the corresponding
-bundles; see [weight requirements](weights/README.md). No download is provided.
+sidecars in `weights/` record hashes for earlier bundles, which may not match the
+current configurations; see [weight requirements](weights/README.md). No download is provided.
 
 ### Inference
 

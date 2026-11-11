@@ -16,7 +16,7 @@
   "stage1_checkpoint": "checkpoints/stage1_from_scratch/best.pth",
   "localizer": {
     "size": 416,
-    "wave": "db6",
+    "wave": "db2",
     "levels": 4,
     "width": 16,
     "beta": 1.0,

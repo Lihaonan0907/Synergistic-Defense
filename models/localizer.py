@@ -22,7 +22,7 @@ class HighPassEnhancement(nn.Module):
 
 
 class SpectralPatchLocalizer(nn.Module):
-    def __init__(self,size=416,wave='db6',levels=4,width=16,beta=1.,mode='shared_enhancement',tiny=False,roi_backend='native'):
+    def __init__(self,size=416,wave='db2',levels=4,width=16,beta=1.,mode='shared_enhancement',tiny=False,roi_backend='native'):
         super().__init__()
         if mode not in ['paper_literal','shared_enhancement']:raise ValueError(mode)
         self.mode=mode

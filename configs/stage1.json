@@ -16,7 +16,7 @@
   "lr": 0.01,
   "localizer": {
     "size": 416,
-    "wave": "db6",
+    "wave": "db2",
     "levels": 4,
     "width": 16,
     "beta": 1.0,
@@ -32,7 +32,7 @@
     "base_weight": 10.0,
     "kappa": 10.0,
     "tau": 0.8,
-    "lambda_align": 1e-06,
+    "lambda_align": 10.0,
     "reduction": "batch_mean",
     "higher_order": true
   },
@@ -40,7 +40,7 @@
     "A01 spectral input topology",
     "A02 boundary convention",
     "A03 H initialization",
-    "A05 literal coefficient sum/batch mean, outerlambda1e-6 (A21)",
+    "A05 literal coefficient sum/batch mean, global alignment coefficient 10.0",
     "A18 mixed precision BF16, equivalent torch ROIAlign backend; vulnerability remains differentiable",
     "A19 fixed normalization buffers",
     "A20 per-example deterministic RPN sampling and manual FP32 replica-gradient summation",

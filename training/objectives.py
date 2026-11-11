@@ -34,7 +34,7 @@ def stage1_objective(model,x,targets,cfg):
     else:raise ValueError(weighting)
     align,stats=alignment_loss(base,enhanced,weights,cfg.get('alpha',.6),cfg.get('beta_align',.4),cfg.get('eps',1e-6),cfg.get('reduction','batch_mean'))
     detection=lb if model.mode=='paper_literal' else (lb+le)/2
-    loss=detection+cfg.get('lambda_align',1.)*align
+    loss=detection+cfg.get('lambda_align',10.)*align
     return loss,{'detection':detection,'detection_base':lb,'detection_enhanced':le,'alignment':align,
                 'vulnerability':v.detach(),'weights':weights.detach(),**{f'patch/{k}':v for k,v in parts.items()}}
 
